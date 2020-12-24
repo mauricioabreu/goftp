@@ -54,7 +54,7 @@ func (c *connection) handle() {
 			c.writeout("exiting...")
 			os.Exit(0)
 		default:
-			c.writeout("unknown command")
+			c.writeout("unknown command: %s", command)
 			continue
 		}
 	}
