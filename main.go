@@ -149,7 +149,7 @@ func (c *Connection) cwd(args []string) {
 		c.writeout("file unavailable for operation")
 		return
 	}
-	c.workdir = target
+	c.workdir = wd
 	c.writeout("sucessful cwd")
 }
 
