@@ -7,11 +7,27 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
-type connection struct {
-	conn net.Conn
+type Connection struct {
+	conn    net.Conn
+	rootdir string
+	workdir string
+}
+
+// NewConn prepare a connection to be used
+func NewConn(c net.Conn) *Connection {
+	rd, err := filepath.Abs(".")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &Connection{
+		conn:    c,
+		rootdir: rd,
+		workdir: "/",
+	}
 }
 
 func main() {
@@ -26,12 +42,12 @@ func main() {
 			log.Printf("error accepting new connection: %s", err)
 			os.Exit(1)
 		}
-		conn := connection{conn: c}
+		conn := NewConn(c)
 		go conn.handle()
 	}
 }
 
-func (c *connection) handle() {
+func (c *Connection) handle() {
 	b := bufio.NewScanner(c.conn)
 	var args []string
 
@@ -53,6 +69,10 @@ func (c *connection) handle() {
 		case "CLOSE":
 			c.writeout("exiting...")
 			os.Exit(0)
+		case "CWD":
+			c.cwd(args)
+		case "PWD":
+			c.pwd()
 		default:
 			c.writeout("unknown command: %s", command)
 			continue
@@ -60,7 +80,7 @@ func (c *connection) handle() {
 	}
 }
 
-func (c *connection) list(args []string) {
+func (c *Connection) list(args []string) {
 	if len(args) != 1 {
 		c.writeout("bad number of arguments")
 		return
@@ -96,7 +116,7 @@ func (c *connection) list(args []string) {
 	c.writeout("successful list")
 }
 
-func (c *connection) get(args []string) {
+func (c *Connection) get(args []string) {
 	if len(args) != 1 {
 		c.writeout("bad number of arguments")
 		return
@@ -117,7 +137,27 @@ func (c *connection) get(args []string) {
 	c.writeout("successful get")
 }
 
-func (c *connection) writeout(msg ...interface{}) {
+func (c *Connection) cwd(args []string) {
+	if len(args) != 1 {
+		c.writeout("bad number of arguments")
+		return
+	}
+	wd := filepath.Join(c.workdir, args[0])
+	target := filepath.Join(c.rootdir, wd)
+
+	if _, err := os.Stat(target); err != nil {
+		c.writeout("file unavailable for operation")
+		return
+	}
+	c.workdir = target
+	c.writeout("sucessful cwd")
+}
+
+func (c *Connection) pwd() {
+	c.writeout(filepath.Join(c.rootdir, c.workdir))
+}
+
+func (c *Connection) writeout(msg ...interface{}) {
 	msg = append(msg, "\r\n")
 	fmt.Fprint(c.conn, msg...)
 }
