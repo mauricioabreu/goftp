@@ -68,7 +68,7 @@ func (c *Connection) handle() {
 			c.get(args)
 		case "CLOSE":
 			c.writeout("exiting...")
-			os.Exit(0)
+			return
 		case "CWD":
 			c.cwd(args)
 		case "PWD":
@@ -78,15 +78,23 @@ func (c *Connection) handle() {
 			continue
 		}
 	}
+
+	if b.Err() != nil {
+		log.Println(b.Err())
+	}
 }
 
 func (c *Connection) list(args []string) {
-	if len(args) != 1 {
+	var filename string
+	switch lenargs := len(args); lenargs {
+	case 0:
+		filename = filepath.Join(c.rootdir, c.workdir)
+	case 1:
+		filename = filepath.Join(c.rootdir, c.workdir, args[0])
+	default:
 		c.writeout("bad number of arguments")
 		return
 	}
-
-	filename := args[0]
 
 	file, err := os.Open(filename)
 	if err != nil {
