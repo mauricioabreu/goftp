@@ -127,6 +127,15 @@ func (c *Connection) list(args []string) {
 		return
 	}
 
+	c.writeout("150 File status okay; about to open data connection.")
+	dc, err := c.dataconnection()
+	if err != nil {
+		log.Println(err)
+		c.writeout("425 Can't open data connection.")
+		return
+	}
+	defer dc.Close()
+
 	fileinfo, err := os.Stat(filename)
 	if err != nil {
 		log.Println(fmt.Sprintf("could not read file: %s", filename))
@@ -141,13 +150,20 @@ func (c *Connection) list(args []string) {
 			return
 		}
 		for _, dir := range dirs {
-			c.writeout(dir)
+			if _, err := fmt.Fprint(dc, dir, "\r\n"); err != nil {
+				log.Println(err)
+				c.writeout("426 Connection closed; transfer aborted.")
+				return
+			}
 		}
 	} else {
-		c.writeout(filename)
-		return
+		if _, err := fmt.Fprint(dc, filename, "\r\n"); err != nil {
+			log.Println(err)
+			c.writeout("426 Connection closed; transfer aborted.")
+			return
+		}
 	}
-	c.writeout("200 successful command.")
+	c.writeout("226 Closing data connection. Requested file action successful.")
 }
 
 func (c *Connection) retr(args []string) {
@@ -178,7 +194,7 @@ func (c *Connection) retr(args []string) {
 		c.writeout("450 Requested file action not taken.")
 		return
 	}
-	c.writeout("226 Closing data connection. Requested file action successfu")
+	c.writeout("226 Closing data connection. Requested file action successful.")
 }
 
 func (c *Connection) cwd(args []string) {
