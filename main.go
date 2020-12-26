@@ -146,6 +146,7 @@ func (c *Connection) list(args []string) {
 	if fileinfo.IsDir() {
 		files, err := file.Readdirnames(0) // 0 to read all names
 		if err != nil {
+			log.Println(err)
 			c.writeout("450 Requested file action not taken.")
 			return
 		}
