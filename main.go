@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -11,10 +12,13 @@ import (
 	"strings"
 )
 
+var port int
+
 type Connection struct {
-	conn    net.Conn
-	rootdir string
-	workdir string
+	conn     net.Conn
+	dataport *Dataport
+	rootdir  string
+	workdir  string
 }
 
 // NewConn prepare a connection to be used
@@ -31,7 +35,10 @@ func NewConn(c net.Conn) *Connection {
 }
 
 func main() {
-	listener, err := net.Listen("tcp", "localhost:8000")
+	flag.IntVar(&port, "port", 1039, "port to run server")
+	flag.Parse()
+
+	listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
 	if err != nil {
 		log.Fatalf("error listening: %s", err)
 	}
@@ -73,6 +80,8 @@ func (c *Connection) handle() {
 			c.cwd(args)
 		case "PWD":
 			c.pwd()
+		case "PORT":
+			c.port(args)
 		default:
 			c.writeout("502 command not implemented.")
 			continue
@@ -82,6 +91,22 @@ func (c *Connection) handle() {
 	if b.Err() != nil {
 		log.Println(b.Err())
 	}
+}
+
+func (c *Connection) port(args []string) {
+	if len(args) != 1 {
+		c.writeout("501 Syntax error in parameters or arguments.")
+		return
+	}
+
+	address := args[0]
+	dataport, err := parse(address)
+	if err != nil {
+		c.writeout("501 Syntax error in parameters or arguments.")
+		return
+	}
+	c.dataport = dataport
+	c.writeout("200 successful command.")
 }
 
 func (c *Connection) list(args []string) {
@@ -138,12 +163,22 @@ func (c *Connection) retr(args []string) {
 		return
 	}
 
-	_, err = io.Copy(c.conn, file)
+	c.writeout("150 File status okay; about to open data connection.")
+	dc, err := c.dataconnection()
 	if err != nil {
+		log.Println(err)
+		c.writeout("425 Can't open data connection.")
+		return
+	}
+	defer dc.Close()
+
+	_, err = io.Copy(dc, file)
+	if err != nil {
+		log.Println(err)
 		c.writeout("450 Requested file action not taken.")
 		return
 	}
-	c.writeout("200 successful command.")
+	c.writeout("226 Closing data connection. Requested file action successfu")
 }
 
 func (c *Connection) cwd(args []string) {

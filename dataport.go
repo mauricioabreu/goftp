@@ -12,6 +12,11 @@ type Dataport struct {
 	port int
 }
 
+// Address return a valid address with IP+port
+func (d *Dataport) Address() string {
+	return fmt.Sprintf("%s:%d", d.ip, d.port)
+}
+
 func parse(dataport string) (*Dataport, error) {
 	fields := strings.Split(dataport, ",")
 	ip, sport := fields[0:4], fields[4:]
