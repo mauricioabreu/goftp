@@ -64,9 +64,9 @@ func (c *Connection) handle() {
 		switch command {
 		case "LIST":
 			c.list(args)
-		case "GET":
-			c.get(args)
-		case "CLOSE":
+		case "RETR":
+			c.retr(args)
+		case "QUIT":
 			c.writeout("221 Service closing control connection.")
 			return
 		case "CWD":
@@ -125,7 +125,7 @@ func (c *Connection) list(args []string) {
 	c.writeout("200 successful command.")
 }
 
-func (c *Connection) get(args []string) {
+func (c *Connection) retr(args []string) {
 	if len(args) != 1 {
 		c.writeout("501 Syntax error in parameters or arguments.")
 		return
