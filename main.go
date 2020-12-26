@@ -67,14 +67,14 @@ func (c *Connection) handle() {
 		case "GET":
 			c.get(args)
 		case "CLOSE":
-			c.writeout("exiting...")
+			c.writeout("221 Service closing control connection.")
 			return
 		case "CWD":
 			c.cwd(args)
 		case "PWD":
 			c.pwd()
 		default:
-			c.writeout("unknown command: %s", command)
+			c.writeout("502 command not implemented.")
 			continue
 		}
 	}
@@ -92,26 +92,27 @@ func (c *Connection) list(args []string) {
 	case 1:
 		filename = filepath.Join(c.rootdir, c.workdir, args[0])
 	default:
-		c.writeout("bad number of arguments")
+		c.writeout("501 Syntax error in parameters or arguments.")
 		return
 	}
 
 	file, err := os.Open(filename)
 	if err != nil {
-		c.writeout("file not found")
+		c.writeout("550 Requested action not taken. File unavailable.")
 		return
 	}
 
 	fileinfo, err := os.Stat(filename)
 	if err != nil {
-		c.writeout(fmt.Sprintf("could not read file: %s", filename))
+		log.Println(fmt.Sprintf("could not read file: %s", filename))
+		c.writeout("550 Requested action not taken. File unavailable.")
 		return
 	}
 
 	if fileinfo.IsDir() {
 		dirs, err := file.Readdirnames(0) // 0 to read all names
 		if err != nil {
-			c.writeout("error reading dirs inside %s")
+			c.writeout("450 Requested file action not taken.")
 			return
 		}
 		for _, dir := range dirs {
@@ -121,44 +122,44 @@ func (c *Connection) list(args []string) {
 		c.writeout(filename)
 		return
 	}
-	c.writeout("successful list")
+	c.writeout("200 successful command.")
 }
 
 func (c *Connection) get(args []string) {
 	if len(args) != 1 {
-		c.writeout("bad number of arguments")
+		c.writeout("501 Syntax error in parameters or arguments.")
 		return
 	}
 
 	filename := args[0]
 	file, err := os.Open(filename)
 	if err != nil {
-		c.writeout("error opening file")
+		c.writeout("550 Requested action not taken. File unavailable.")
 		return
 	}
 
 	_, err = io.Copy(c.conn, file)
 	if err != nil {
-		c.writeout("file unavailable for operation")
+		c.writeout("450 Requested file action not taken.")
 		return
 	}
-	c.writeout("successful get")
+	c.writeout("200 successful command.")
 }
 
 func (c *Connection) cwd(args []string) {
 	if len(args) != 1 {
-		c.writeout("bad number of arguments")
+		c.writeout("501 Syntax error in parameters or arguments.")
 		return
 	}
 	wd := filepath.Join(c.workdir, args[0])
 	target := filepath.Join(c.rootdir, wd)
 
 	if _, err := os.Stat(target); err != nil {
-		c.writeout("file unavailable for operation")
+		c.writeout("550 Requested action not taken. File unavailable.")
 		return
 	}
 	c.workdir = wd
-	c.writeout("sucessful cwd")
+	c.writeout("200 successful command.")
 }
 
 func (c *Connection) pwd() {
