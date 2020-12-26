@@ -144,13 +144,13 @@ func (c *Connection) list(args []string) {
 	}
 
 	if fileinfo.IsDir() {
-		dirs, err := file.Readdirnames(0) // 0 to read all names
+		files, err := file.Readdirnames(0) // 0 to read all names
 		if err != nil {
 			c.writeout("450 Requested file action not taken.")
 			return
 		}
-		for _, dir := range dirs {
-			if _, err := fmt.Fprint(dc, dir, "\r\n"); err != nil {
+		for _, file := range files {
+			if _, err := fmt.Fprint(dc, file, "\r\n"); err != nil {
 				log.Println(err)
 				c.writeout("426 Connection closed; transfer aborted.")
 				return
