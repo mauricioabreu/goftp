@@ -286,7 +286,14 @@ func (c *Connection) setType(args []string) {
 	c.writeout("200 successful command.")
 }
 
+func (c *Connection) lineterminator() string {
+	if c.binary {
+		return "\n"
+	}
+	return "\r\n"
+}
+
 func (c *Connection) writeout(msg ...interface{}) {
-	msg = append(msg, "\r\n")
+	msg = append(msg, c.lineterminator())
 	fmt.Fprint(c.conn, msg...)
 }
