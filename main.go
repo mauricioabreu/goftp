@@ -198,13 +198,40 @@ func (c *Connection) retr(args []string) {
 	}
 	defer dc.Close()
 
-	_, err = io.Copy(dc, file)
-	if err != nil {
-		log.Println(err)
-		c.writeout("450 Requested file action not taken.")
-		return
+	if c.binary {
+		_, err = io.Copy(dc, file)
+		if err != nil {
+			log.Println(err)
+			c.writeout("450 Requested file action not taken.")
+			return
+		}
+		c.writeout("226 Closing data connection. Requested file action successful.")
+	} else {
+		r, w := bufio.NewReader(file), bufio.NewWriter(dc)
+		for {
+			line, isPrefix, err := r.ReadLine()
+			if err == io.EOF {
+				if err := w.Flush(); err != nil {
+					log.Println(err)
+				}
+				c.writeout("226 Closing data connection. Requested file action successful.")
+				return
+			}
+			if err != nil {
+				log.Println(err)
+				c.writeout("426 Connection closed; transfer aborted.")
+				return
+			}
+			if _, err = w.Write(line); err != nil {
+				log.Println(err)
+				c.writeout("426 Connection closed; transfer aborted.")
+				return
+			}
+			if !isPrefix {
+				w.Write([]byte(c.lineterminator()))
+			}
+		}
 	}
-	c.writeout("226 Closing data connection. Requested file action successful.")
 }
 
 func (c *Connection) stor(args []string) {
