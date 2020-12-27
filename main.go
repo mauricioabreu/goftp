@@ -16,11 +16,12 @@ var port int
 
 // Connection represent a connection to accept commands
 type Connection struct {
-	conn     net.Conn
-	dataport *Dataport
-	rootdir  string
-	workdir  string
-	binary   bool
+	conn        net.Conn
+	dataport    *Dataport
+	rootdir     string
+	workdir     string
+	binary      bool
+	prevCommand string
 }
 
 // NewConn prepare a connection to be used
@@ -100,6 +101,7 @@ func (c *Connection) handle() {
 			c.writeout("502 command not implemented.")
 			continue
 		}
+		c.prevCommand = command
 	}
 
 	if b.Err() != nil {
@@ -143,6 +145,11 @@ func (c *Connection) list(args []string) {
 
 	c.writeout("150 File status okay; about to open data connection.")
 	dc, err := c.dataconnection()
+	if err == ErrBadSequence {
+		log.Println(err)
+		c.writeout("503 Bad sequence of commands.")
+		return
+	}
 	if err != nil {
 		log.Println(err)
 		c.writeout("425 Can't open data connection.")
@@ -196,6 +203,11 @@ func (c *Connection) retr(args []string) {
 
 	c.writeout("150 File status okay; about to open data connection.")
 	dc, err := c.dataconnection()
+	if err == ErrBadSequence {
+		log.Println(err)
+		c.writeout("503 Bad sequence of commands.")
+		return
+	}
 	if err != nil {
 		log.Println(err)
 		c.writeout("425 Can't open data connection.")
@@ -259,6 +271,11 @@ func (c *Connection) stor(args []string) {
 
 	c.writeout("150 File status okay; about to open data connection.")
 	dc, err := c.dataconnection()
+	if err == ErrBadSequence {
+		log.Println(err)
+		c.writeout("503 Bad sequence of commands.")
+		return
+	}
 	if err != nil {
 		log.Println(err)
 		c.writeout("425 Can't open data connection.")
