@@ -12,4 +12,7 @@ Dummy FTP server written in golang
 - [x] CWD (change current working directory)
 - [x] PWD (print working directory)
 - [x] PORT (open a data connection)
-- [x] CLOSE
+- [x] STRU (obsolete)
+- [x] MODE (obsolete)
+- [x] NOOP (useful for keepalive)
+- [x] QUIT (close connection)
