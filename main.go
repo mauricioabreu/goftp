@@ -81,7 +81,7 @@ func (c *Connection) handle() {
 		case "CWD":
 			c.cwd(args)
 		case "PWD":
-			c.pwd()
+			c.pwd(args)
 		case "PORT":
 			c.port(args)
 		case "NOOP":
@@ -250,7 +250,11 @@ func (c *Connection) cwd(args []string) {
 	c.writeout("200 successful command.")
 }
 
-func (c *Connection) pwd() {
+func (c *Connection) pwd(args []string) {
+	if len(args) > 0 {
+		c.writeout("501 Syntax error in parameters or arguments.")
+		return
+	}
 	c.writeout(filepath.Join(c.rootdir, c.workdir))
 }
 
