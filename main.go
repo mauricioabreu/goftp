@@ -58,6 +58,7 @@ func (c *Connection) handle() {
 	b := bufio.NewScanner(c.conn)
 	var args []string
 
+	c.writeout("220 Welcome")
 	for b.Scan() {
 		fields := strings.Fields(b.Text())
 		if len(fields) == 0 {
