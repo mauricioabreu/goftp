@@ -73,6 +73,8 @@ func (c *Connection) handle() {
 			c.list(args)
 		case "RETR":
 			c.retr(args)
+		case "STOR":
+			c.stor(args)
 		case "QUIT":
 			c.writeout("221 Service closing control connection.")
 			return
@@ -190,6 +192,38 @@ func (c *Connection) retr(args []string) {
 	defer dc.Close()
 
 	_, err = io.Copy(dc, file)
+	if err != nil {
+		log.Println(err)
+		c.writeout("450 Requested file action not taken.")
+		return
+	}
+	c.writeout("226 Closing data connection. Requested file action successful.")
+}
+
+func (c *Connection) stor(args []string) {
+	if len(args) != 1 {
+		c.writeout("501 Syntax error in parameters or arguments.")
+		return
+	}
+
+	filename := filepath.Join(c.rootdir, c.workdir, args[0])
+	file, err := os.Create(filename)
+	if err != nil {
+		log.Println(err)
+		c.writeout("550 Requested action not taken. File unavailable.")
+		return
+	}
+
+	c.writeout("150 File status okay; about to open data connection.")
+	dc, err := c.dataconnection()
+	if err != nil {
+		log.Println(err)
+		c.writeout("425 Can't open data connection.")
+		return
+	}
+	defer dc.Close()
+
+	_, err = io.Copy(file, dc)
 	if err != nil {
 		log.Println(err)
 		c.writeout("450 Requested file action not taken.")
