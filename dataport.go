@@ -36,16 +36,5 @@ func toDecimal(rawValues []string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	hfnum := fmt.Sprintf("%02x", fnum)
-	hsnum := fmt.Sprintf("%02x", snum)
-
-	return hexToDec(hfnum + hsnum)
-}
-
-func hexToDec(value string) (int, error) {
-	dec, err := strconv.ParseInt(value, 16, 64)
-	if err != nil {
-		return 0, err
-	}
-	return int(dec), nil
+	return (fnum * 256) + snum, nil
 }
