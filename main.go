@@ -84,6 +84,8 @@ func (c *Connection) handle() {
 			c.pwd()
 		case "PORT":
 			c.port(args)
+		case "NOOP":
+			c.noop(args)
 		default:
 			c.writeout("502 command not implemented.")
 			continue
@@ -250,6 +252,14 @@ func (c *Connection) cwd(args []string) {
 
 func (c *Connection) pwd() {
 	c.writeout(filepath.Join(c.rootdir, c.workdir))
+}
+
+func (c *Connection) noop(args []string) {
+	if len(args) > 0 {
+		c.writeout("501 Syntax error in parameters or arguments.")
+		return
+	}
+	c.writeout("200 successful command.")
 }
 
 func (c *Connection) writeout(msg ...interface{}) {
