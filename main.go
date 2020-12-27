@@ -14,6 +14,7 @@ import (
 
 var port int
 
+// Connection represent a connection to accept commands
 type Connection struct {
 	conn     net.Conn
 	dataport *Dataport
