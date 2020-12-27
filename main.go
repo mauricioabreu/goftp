@@ -19,6 +19,7 @@ type Connection struct {
 	dataport *Dataport
 	rootdir  string
 	workdir  string
+	binary   bool
 }
 
 // NewConn prepare a connection to be used
@@ -31,6 +32,7 @@ func NewConn(c net.Conn) *Connection {
 		conn:    c,
 		rootdir: rd,
 		workdir: "/",
+		binary:  false,
 	}
 }
 
@@ -87,6 +89,8 @@ func (c *Connection) handle() {
 			c.port(args)
 		case "NOOP":
 			c.noop(args)
+		case "TYPE":
+			c.setType(args)
 		default:
 			c.writeout("502 command not implemented.")
 			continue
@@ -262,6 +266,20 @@ func (c *Connection) pwd(args []string) {
 
 func (c *Connection) noop(args []string) {
 	if len(args) > 0 {
+		c.writeout("501 Syntax error in parameters or arguments.")
+		return
+	}
+	c.writeout("200 successful command.")
+}
+
+func (c *Connection) setType(args []string) {
+	flag := strings.ToUpper(strings.Join(args, ""))
+	switch flag {
+	case "A", "A N":
+		c.binary = false
+	case "I", "L 8":
+		c.binary = true
+	default:
 		c.writeout("501 Syntax error in parameters or arguments.")
 		return
 	}
