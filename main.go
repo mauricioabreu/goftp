@@ -91,6 +91,10 @@ func (c *Connection) handle() {
 			c.noop(args)
 		case "TYPE":
 			c.setType(args)
+		case "STRU":
+			c.stru(args)
+		case "MODE":
+			c.mode(args)
 		default:
 			c.writeout("502 command not implemented.")
 			continue
@@ -315,6 +319,24 @@ func (c *Connection) setType(args []string) {
 		return
 	}
 	c.writeout("200 successful command.")
+}
+
+func (c *Connection) stru(args []string) {
+	value := strings.Join(args, "")
+	if strings.EqualFold(value, "F") {
+		c.writeout("200 successful command.")
+		return
+	}
+	c.writeout("504 Command not implemented for that parameter.")
+}
+
+func (c *Connection) mode(args []string) {
+	value := strings.Join(args, "")
+	if strings.EqualFold(value, "S") {
+		c.writeout("200 successful command.")
+		return
+	}
+	c.writeout("504 Command not implemented for that parameter.")
 }
 
 func (c *Connection) lineterminator() string {
