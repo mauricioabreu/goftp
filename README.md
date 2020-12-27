@@ -1,5 +1,7 @@
 # Dummy FTP server
 
+**WORK IN PROGRESS**
+
 Dummy FTP server written in golang
 
 ## Features
