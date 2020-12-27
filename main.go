@@ -228,7 +228,11 @@ func (c *Connection) retr(args []string) {
 				return
 			}
 			if !isPrefix {
-				w.Write([]byte(c.lineterminator()))
+				if _, err := w.Write([]byte(c.lineterminator())); err != nil {
+					log.Println(err)
+					c.writeout("426 Connection closed; transfer aborted.")
+					return
+				}
 			}
 		}
 	}
