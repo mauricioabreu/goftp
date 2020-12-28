@@ -164,7 +164,7 @@ func (c *Connection) list(args []string) {
 	}
 	defer dc.Close()
 
-	fileinfo, err := os.Stat(filename)
+	fileinfo, err := file.Stat()
 	if err != nil {
 		log.Println(fmt.Sprintf("could not read file: %s", filename))
 		c.writeout("550 Requested action not taken. File unavailable.")
