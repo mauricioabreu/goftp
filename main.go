@@ -43,7 +43,7 @@ func main() {
 	flag.IntVar(&port, "port", 1039, "port to run server")
 	flag.Parse()
 
-	listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+	listener, err := net.Listen("tcp4", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Fatalf("error listening: %s", err)
 	}
