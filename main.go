@@ -166,7 +166,7 @@ func (c *Connection) list(args []string) {
 
 	fileinfo, err := file.Stat()
 	if err != nil {
-		log.Println(fmt.Sprintf("could not read file: %s", filename))
+		log.Println(fmt.Sprintf("Could not read file: %s", filename))
 		c.writeout("550 Requested action not taken. File unavailable.")
 		return
 	}
