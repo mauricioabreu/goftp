@@ -179,14 +179,14 @@ func (c *Connection) list(args []string) {
 			return
 		}
 		for _, file := range files {
-			if _, err := fmt.Fprint(dc, file, "\r\n"); err != nil {
+			if _, err := fmt.Fprint(dc, file, c.lineterminator()); err != nil {
 				log.Println(err)
 				c.writeout("426 Connection closed; transfer aborted.")
 				return
 			}
 		}
 	} else {
-		if _, err := fmt.Fprint(dc, filename, "\r\n"); err != nil {
+		if _, err := fmt.Fprint(dc, filename, c.lineterminator()); err != nil {
 			log.Println(err)
 			c.writeout("426 Connection closed; transfer aborted.")
 			return
