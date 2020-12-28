@@ -40,7 +40,7 @@ func NewConn(c net.Conn) *Connection {
 }
 
 func main() {
-	flag.IntVar(&port, "port", 1039, "port to run server")
+	flag.IntVar(&port, "port", 8080, "port to run server")
 	flag.Parse()
 
 	listener, err := net.Listen("tcp4", fmt.Sprintf(":%d", port))
@@ -100,6 +100,8 @@ func (c *Connection) handle() {
 			c.stru(args)
 		case "MODE":
 			c.mode(args)
+		case "USER":
+			c.user(args)
 		default:
 			c.writeout("502 command not implemented.")
 			continue
@@ -358,6 +360,10 @@ func (c *Connection) mode(args []string) {
 		return
 	}
 	c.writeout("504 Command not implemented for that parameter.")
+}
+
+func (c *Connection) user(args []string) {
+	c.writeout("200 successful command.")
 }
 
 func (c *Connection) lineterminator() string {
