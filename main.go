@@ -306,6 +306,7 @@ func (c *Connection) cwd(args []string) {
 	target := filepath.Join(c.rootdir, wd)
 
 	if _, err := os.Stat(target); err != nil {
+		log.Println(err)
 		c.writeout("550 Requested action not taken. File unavailable.")
 		return
 	}
