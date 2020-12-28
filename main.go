@@ -22,6 +22,7 @@ type Connection struct {
 	workdir     string
 	binary      bool
 	prevCommand string
+	listener    net.Listener
 }
 
 // NewConn prepare a connection to be used
@@ -89,6 +90,8 @@ func (c *Connection) handle() {
 			c.pwd(args)
 		case "PORT":
 			c.port(args)
+		case "PASV":
+			c.pasv(args)
 		case "NOOP":
 			c.noop(args)
 		case "TYPE":
@@ -100,6 +103,9 @@ func (c *Connection) handle() {
 		default:
 			c.writeout("502 command not implemented.")
 			continue
+		}
+		if command != "PASV" && c.listener != nil {
+			c.cleanupListener()
 		}
 		c.prevCommand = command
 	}
@@ -146,7 +152,6 @@ func (c *Connection) list(args []string) {
 	c.writeout("150 File status okay; about to open data connection.")
 	dc, err := c.dataconnection()
 	if err == ErrBadSequence {
-		log.Println(err)
 		c.writeout("503 Bad sequence of commands.")
 		return
 	}
@@ -204,7 +209,6 @@ func (c *Connection) retr(args []string) {
 	c.writeout("150 File status okay; about to open data connection.")
 	dc, err := c.dataconnection()
 	if err == ErrBadSequence {
-		log.Println(err)
 		c.writeout("503 Bad sequence of commands.")
 		return
 	}
@@ -272,7 +276,6 @@ func (c *Connection) stor(args []string) {
 	c.writeout("150 File status okay; about to open data connection.")
 	dc, err := c.dataconnection()
 	if err == ErrBadSequence {
-		log.Println(err)
 		c.writeout("503 Bad sequence of commands.")
 		return
 	}
