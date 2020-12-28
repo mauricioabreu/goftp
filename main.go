@@ -319,8 +319,7 @@ func (c *Connection) pwd(args []string) {
 		c.writeout("501 Syntax error in parameters or arguments.")
 		return
 	}
-	cd := filepath.Join(c.rootdir, c.workdir)
-	c.writeout(fmt.Sprintf("257 %q is current directory", cd))
+	c.writeout(fmt.Sprintf("257 %q is current directory", c.workdir))
 }
 
 func (c *Connection) noop(args []string) {
