@@ -63,7 +63,8 @@ func (c *Connection) list(args []string) {
 			}
 		}
 	} else {
-		if _, err := fmt.Fprint(dc, filename, c.lineterminator()); err != nil {
+		name := formatList([]string{filename})[0]
+		if _, err := fmt.Fprint(dc, name, c.lineterminator()); err != nil {
 			log.Println(err)
 			c.writeout("426 Connection closed; transfer aborted.")
 			return
