@@ -74,6 +74,7 @@ func (c *Connection) handle() {
 			args = fields[1:]
 		}
 
+		log.Printf("[command] %s %v\n", command, args)
 		switch command {
 		case "LIST":
 			c.list(args)
