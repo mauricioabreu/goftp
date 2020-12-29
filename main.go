@@ -235,23 +235,6 @@ func (c *Connection) stor(args []string) {
 	c.writeout("226 Closing data connection. Requested file action successful.")
 }
 
-func (c *Connection) cwd(args []string) {
-	if len(args) != 1 {
-		c.writeout("501 Syntax error in parameters or arguments.")
-		return
-	}
-	wd := filepath.Join(c.workdir, args[0])
-	target := filepath.Join(c.rootdir, wd)
-
-	if _, err := os.Stat(target); err != nil {
-		log.Println(err)
-		c.writeout("550 Requested action not taken. File unavailable.")
-		return
-	}
-	c.workdir = wd
-	c.writeout("200 successful command.")
-}
-
 func (c *Connection) pwd(args []string) {
 	if len(args) > 0 {
 		c.writeout("501 Syntax error in parameters or arguments.")
