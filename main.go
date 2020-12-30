@@ -236,14 +236,6 @@ func (c *Connection) stor(args []string) {
 	c.writeout("226 Closing data connection. Requested file action successful.")
 }
 
-func (c *Connection) pwd(args []string) {
-	if len(args) > 0 {
-		c.writeout("501 Syntax error in parameters or arguments.")
-		return
-	}
-	c.writeout(fmt.Sprintf("257 %q is current directory", c.workdir))
-}
-
 func (c *Connection) noop(args []string) {
 	if len(args) > 0 {
 		c.writeout("501 Syntax error in parameters or arguments.")
