@@ -14,8 +14,8 @@ func (c *Connection) retr(args []string) {
 		return
 	}
 
-	filename := args[0]
-	file, err := os.Open(filepath.Join(c.curDir(), filename))
+	filename := filepath.Join(c.curDir(), filepath.Clean(args[0]))
+	file, err := os.Open(filename)
 	if err != nil {
 		c.writeout("550 Requested action not taken. File unavailable.")
 		return

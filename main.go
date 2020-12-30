@@ -115,7 +115,7 @@ func (c *Connection) stor(args []string) {
 		return
 	}
 
-	filename := filepath.Join(c.rootdir, c.workdir, args[0])
+	filename := filepath.Join(c.curDir(), filepath.Clean(args[0]))
 	file, err := os.Create(filename)
 	if err != nil {
 		log.Println(err)
