@@ -13,7 +13,6 @@ func (c *Connection) cwd(args []string) {
 		return
 	}
 	wd := c.buildWorkDir(args[0])
-	log.Println(wd)
 
 	if _, err := os.Stat(filepath.Join(c.rootdir, wd)); err != nil {
 		log.Println(err)
