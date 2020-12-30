@@ -30,3 +30,7 @@ func NewConn(c net.Conn) *Connection {
 		binary:  false,
 	}
 }
+
+func (c *Connection) curDir() string {
+	return filepath.Join(c.rootdir, c.workdir)
+}

@@ -55,7 +55,7 @@ func (c *Connection) list(args []string) {
 			c.writeout("450 Requested file action not taken.")
 			return
 		}
-		for _, name := range formatList(files) {
+		for _, name := range formatList(c.curDir(), files) {
 			if _, err := fmt.Fprint(dc, name, c.lineterminator()); err != nil {
 				log.Println(err)
 				c.writeout("426 Connection closed; transfer aborted.")
@@ -63,7 +63,7 @@ func (c *Connection) list(args []string) {
 			}
 		}
 	} else {
-		name := formatList([]string{filename})[0]
+		name := formatList(c.curDir(), []string{filename})[0]
 		if _, err := fmt.Fprint(dc, name, c.lineterminator()); err != nil {
 			log.Println(err)
 			c.writeout("426 Connection closed; transfer aborted.")
@@ -77,10 +77,10 @@ func (c *Connection) list(args []string) {
 // Output:
 // drwxr-xr-x  13 mauricio.abreua  staff   416 Dec 28 13:31 videos
 // -rw-r--r--   1 mauricio.abreua  staff   431 Dec 27 16:17 foo.txt
-func formatList(names []string) []string {
+func formatList(curDir string, names []string) []string {
 	listing := make([]string, 0)
 	for _, name := range names {
-		file, err := os.Open(name)
+		file, err := os.Open(filepath.Join(curDir, name))
 		if err != nil {
 			log.Printf("Skipping %s. Reason %s", name, err)
 			continue
