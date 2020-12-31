@@ -19,3 +19,5 @@ FTP server written in golang
 - [x] DELE (remove file)
 - [x] RMD (remove directory)
 - [x] XMRD (synonym for RMD)
+- [x] MKD (create directory)
+- [x] XMKD (synonym for MKD)

@@ -59,13 +59,12 @@ func (c *Connection) handle() {
 			c.stor(args)
 		case "DELE":
 			c.dele(args)
-		case "QUIT":
-			c.writeout("221 Service closing control connection.")
-			return
 		case "CWD":
 			c.cwd(args)
 		case "PWD":
 			c.pwd(args)
+		case "MKD", "XMKD":
+			c.mkd(args)
 		case "RMD", "XRMD":
 			c.rmd(args)
 		case "PORT":
@@ -82,6 +81,9 @@ func (c *Connection) handle() {
 			c.mode(args)
 		case "USER":
 			c.user(args)
+		case "QUIT":
+			c.writeout("221 Service closing control connection.")
+			return
 		default:
 			c.writeout("502 command not implemented.")
 			continue
