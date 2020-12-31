@@ -16,3 +16,6 @@ Dummy FTP server written in golang
 - [x] MODE (obsolete)
 - [x] NOOP (useful for keepalive)
 - [x] QUIT (close connection)
+- [x] DELE (remove file)
+- [x] RMD (remove directory)
+- [x] XMRD (synonym for RMD)
