@@ -57,6 +57,8 @@ func (c *Connection) handle() {
 			c.retr(args)
 		case "STOR":
 			c.stor(args)
+		case "DELE":
+			c.dele(args)
 		case "QUIT":
 			c.writeout("221 Service closing control connection.")
 			return
