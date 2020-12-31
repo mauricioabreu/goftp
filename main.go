@@ -66,7 +66,7 @@ func (c *Connection) handle() {
 			c.cwd(args)
 		case "PWD":
 			c.pwd(args)
-		case "RMD":
+		case "RMD", "XRMD":
 			c.rmd(args)
 		case "PORT":
 			c.port(args)
