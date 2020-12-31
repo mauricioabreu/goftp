@@ -87,6 +87,7 @@ func formatList(curDir string, names []string) []string {
 		}
 		fileinfo, err := file.Stat()
 		mode := fileinfo.Mode().String()
+		symlink := readLink(fileinfo)
 		var nlinks int
 		var user, group string
 		stat, ok := fileinfo.Sys().(*syscall.Stat_t)
@@ -100,10 +101,25 @@ func formatList(curDir string, names []string) []string {
 			group = getGroupFromGID(int(stat.Gid))
 		}
 		modtime := fileinfo.ModTime().Format("Jan 2 15:04")
+		if symlink != "" {
+			name = fmt.Sprintf("%s -> %s", name, symlink)
+		}
 		listing = append(listing, fmt.Sprintf(
 			"%s %3d %-8s %-8s %8d %s %s", mode, nlinks, user, group, fileinfo.Size(), modtime, name))
 	}
 	return listing
+}
+
+func readLink(f os.FileInfo) string {
+	symlink := ""
+	var err error
+	if f.Mode()&os.ModeSymlink != 0 {
+		symlink, err = os.Readlink(f.Name())
+		if err != nil {
+			return ""
+		}
+	}
+	return symlink
 }
 
 func links(stat *syscall.Stat_t) int {
