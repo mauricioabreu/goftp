@@ -61,6 +61,8 @@ func (c *Connection) handle() {
 			c.dele(args)
 		case "CWD":
 			c.cwd(args)
+		case "CDUP", "XCUP":
+			c.cdup(args)
 		case "PWD":
 			c.pwd(args)
 		case "MKD", "XMKD":
